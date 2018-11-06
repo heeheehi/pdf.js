@@ -146,10 +146,6 @@ class Toolbar {
       eventBus.dispatch('print', { source: self, });
     });
 
-    items.download.addEventListener('click', function() {
-      eventBus.dispatch('download', { source: self, });
-    });
-
     // Suppress context menus for some controls.
     items.scaleSelect.oncontextmenu = noContextMenuHandler;
 
@@ -177,7 +173,7 @@ class Toolbar {
       } else {
         items.pageNumber.type = 'number';
         this.l10n.get('of_pages', { pagesCount, }, 'of {{pagesCount}}').
-            then((msg) => {
+        then((msg) => {
           items.numPages.textContent = msg;
         });
       }
@@ -187,7 +183,7 @@ class Toolbar {
     if (this.hasPageLabels) {
       items.pageNumber.value = this.pageLabel;
       this.l10n.get('page_of_pages', { pageNumber, pagesCount, },
-                    '({{pageNumber}} of {{pagesCount}})').then((msg) => {
+        '({{pageNumber}} of {{pagesCount}})').then((msg) => {
         items.numPages.textContent = msg;
       });
     } else {
@@ -202,7 +198,7 @@ class Toolbar {
 
     let customScale = Math.round(pageScale * 10000) / 100;
     this.l10n.get('page_scale_percent', { scale: customScale, },
-                  '{{scale}}%').then((msg) => {
+      '{{scale}}%').then((msg) => {
       let options = items.scaleSelect.options;
       let predefinedValueFound = false;
       for (let i = 0, ii = options.length; i < ii; i++) {
@@ -242,9 +238,9 @@ class Toolbar {
         select.setAttribute('style', 'min-width: inherit;');
         let width = select.clientWidth + SCALE_SELECT_CONTAINER_PADDING;
         select.setAttribute('style', 'min-width: ' +
-                                     (width + SCALE_SELECT_PADDING) + 'px;');
+          (width + SCALE_SELECT_PADDING) + 'px;');
         container.setAttribute('style', 'min-width: ' + width + 'px; ' +
-                                        'max-width: ' + width + 'px;');
+          'max-width: ' + width + 'px;');
       }
     });
   }
