@@ -534,11 +534,10 @@ select {
 
 #sidebarContainer {
   position: absolute;
-  top: 32px;
   bottom: 0;
-  width: 200px; /* Here, and elsewhere below, keep the constant value for compatibility
+  width: 100%; /* Here, and elsewhere below, keep the constant value for compatibility
                    with older browsers that lack support for CSS variables. */
-  width: var(--sidebar-width);
+  height: 192px;
   visibility: hidden;
   z-index: 100;
   border-top: 1px solid #333;
@@ -547,18 +546,16 @@ select {
   transition-timing-function: ease;
 }
 html[dir='ltr'] #sidebarContainer {
-  transition-property: left;
-  left: -200px;
-  left: calc(-1 * var(--sidebar-width));
+  transition-property: bottom;
+  bottom: -200px;
 }
 html[dir='rtl'] #sidebarContainer {
-  transition-property: right;
-  right: -200px;
-  right: calc(-1 * var(--sidebar-width));
+  transition-property: bottom;
+  bottom: -200px;
 }
 
 .loadingInProgress #sidebarContainer {
-  top: 36px;
+  /*top: 36px;*/
 }
 
 #outerContainer.sidebarResizing #sidebarContainer {
@@ -576,36 +573,28 @@ html[dir='rtl'] #sidebarContainer {
   visibility: visible;
 }
 html[dir='ltr'] #outerContainer.sidebarOpen #sidebarContainer {
-  left: 0px;
+  bottom: 0;
 }
 html[dir='rtl'] #outerContainer.sidebarOpen #sidebarContainer {
-  right: 0px;
+  bottom: 0;
 }
 
 #mainContainer {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  width: 100%;
   min-width: 320px;
 }
 
 #sidebarContent {
-  top: 32px;
-  bottom: 0;
+  height: 160px;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  position: absolute;
   width: 100%;
-  background-color: hsla(0,0%,0%,.1);
+  background-color: hsla(0,0%,0%,.8);
 }
 html[dir='ltr'] #sidebarContent {
-  left: 0;
   box-shadow: inset -1px 0 0 hsla(0,0%,0%,.25);
 }
 html[dir='rtl'] #sidebarContent {
-  right: 0;
   box-shadow: inset 1px 0 0 hsla(0,0%,0%,.25);
 }
 
@@ -635,21 +624,19 @@ html[dir='rtl'] #viewerContainer {
   transition-duration: 0s;
 }
 
-html[dir='ltr'] #outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentationMode) {
-  transition-property: left;
-  left: 200px;
-  left: var(--sidebar-width);
-}
-html[dir='rtl'] #outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentationMode) {
-  transition-property: right;
-  right: 200px;
-  right: var(--sidebar-width);
-}
+/*html[dir='ltr'] #outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentationMode) {*/
+  /*transition-property: left;*/
+  /*left: 200px;*/
+  /*left: var(--sidebar-width);*/
+/*}*/
+/*html[dir='rtl'] #outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentationMode) {*/
+  /*transition-property: right;*/
+  /*right: 200px;*/
+  /*right: var(--sidebar-width);*/
+/*}*/
 
 .toolbar {
   position: relative;
-  left: 0;
-  right: 0;
   z-index: 9999;
   cursor: default;
 }
@@ -1251,12 +1238,12 @@ html[dir="rtl"] .secondaryToolbarButton::before {
   right: 4px;
 }
 
-html[dir='ltr'] .toolbarButton#sidebarToggle::before {
-  content: url(images/toolbarButton-sidebarToggle.png);
-}
-html[dir='rtl'] .toolbarButton#sidebarToggle::before {
-  content: url(images/toolbarButton-sidebarToggle-rtl.png);
-}
+/*html[dir='ltr'] .toolbarButton#sidebarToggle::before {*/
+  /*content: url(images/toolbarButton-sidebarToggle.png);*/
+/*}*/
+/*html[dir='rtl'] .toolbarButton#sidebarToggle::before {*/
+  /*content: url(images/toolbarButton-sidebarToggle-rtl.png);*/
+/*}*/
 
 html[dir='ltr'] .toolbarButton#secondaryToolbarToggle::before {
   content: url(images/toolbarButton-secondaryToolbarToggle.png);
@@ -1560,23 +1547,26 @@ html[dir='rtl'] .verticalToolbarSeparator {
 }
 
 #thumbnailView {
-  position: absolute;
-  width: calc(100% - 60px);
-  top: 0;
-  bottom: 0;
-  padding: 10px 30px 0;
-  overflow: auto;
+  height: 150px;
+  padding: 7px 30px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
   -webkit-overflow-scrolling: touch;
+}
+#thumbnailView > a {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .thumbnail {
   margin: 0 10px 5px 10px;
 }
 html[dir='ltr'] .thumbnail {
-  float: left;
+  display: block;
 }
 html[dir='rtl'] .thumbnail {
-  float: right;
+  display: block;
 }
 
 #thumbnailView > a:last-of-type > .thumbnail {
@@ -2078,12 +2068,12 @@ html[dir='rtl'] #documentPropertiesOverlay .row > * {
     background-size: 7px 16px;
   }
 
-  html[dir='ltr'] .toolbarButton#sidebarToggle::before {
-    content: url(images/toolbarButton-sidebarToggle@2x.png);
-  }
-  html[dir='rtl'] .toolbarButton#sidebarToggle::before {
-    content: url(images/toolbarButton-sidebarToggle-rtl@2x.png);
-  }
+  /*html[dir='ltr'] .toolbarButton#sidebarToggle::before {*/
+    /*content: url(images/toolbarButton-sidebarToggle@2x.png);*/
+  /*}*/
+  /*html[dir='rtl'] .toolbarButton#sidebarToggle::before {*/
+    /*content: url(images/toolbarButton-sidebarToggle-rtl@2x.png);*/
+  /*}*/
 
   html[dir='ltr'] .toolbarButton#secondaryToolbarToggle::before {
     content: url(images/toolbarButton-secondaryToolbarToggle@2x.png);

@@ -1649,6 +1649,44 @@ function webViewerInitialized() {
   appConfig.sidebar.toggleButton.addEventListener('click', function () {
     PDFViewerApplication.pdfSidebar.toggle();
   });
+  function abs(x) {
+    return Math.abs(x);
+  }
+  function _getEvent(event) {
+    return event.originalEvent || event;
+  }
+  function touchStart(event) {
+    this.startY = _getEvent(event).touches[0].pageY;
+    this.startX = _getEvent(event).touches[0].pageX;
+  }
+  function touchMove(event) {
+    var movementY = abs(_getEvent(event).touches[0].pageY - this.startY);
+    var movementX = abs(_getEvent(event).touches[0].pageX - this.startX);
+    if (movementX > movementY) {
+      event.preventDefault();
+    }
+  }
+  function touchEnd(event) {
+    var movementY = _getEvent(event).changedTouches[0].pageY - this.startY;
+    var movementX = _getEvent(event).changedTouches[0].pageX - this.startX;
+    if (movementX < -80 && movementY < 60) {
+      if (PDFViewerApplication.pagesCount === PDFViewerApplication.page) {
+        PDFViewerApplication.page = 1;
+      } else {
+        PDFViewerApplication.page += 1;
+      }
+    }
+    if (movementX > 50 && movementY < 60) {
+      if (PDFViewerApplication.page === 1) {
+        PDFViewerApplication.page = PDFViewerApplication.pagesCount;
+      } else {
+        PDFViewerApplication.page -= 1;
+      }
+    }
+  }
+  appConfig.mainContainer.addEventListener('touchstart', touchStart);
+  appConfig.mainContainer.addEventListener('touchmove', touchMove);
+  appConfig.mainContainer.addEventListener('touchend', touchEnd);
   try {
     webViewerOpenFileViaURL(file);
   } catch (reason) {
@@ -5730,7 +5768,7 @@ var PDFFindController = function () {
       var _this = this;
 
       var pdfDocument = this._pdfDocument;
-      if (this._state === null || this._shouldDirtyMatch(cmd)) {
+      if (this._state === null || cmd !== 'findagain') {
         this._dirtyMatch = true;
       }
       this._state = state;
@@ -5740,7 +5778,6 @@ var PDFFindController = function () {
           return;
         }
         _this._extractText();
-        var findbarClosed = !_this._highlightMatches;
         if (_this._findTimeout) {
           clearTimeout(_this._findTimeout);
           _this._findTimeout = null;
@@ -5750,11 +5787,10 @@ var PDFFindController = function () {
             _this._nextMatch();
             _this._findTimeout = null;
           }, FIND_TIMEOUT);
-        } else if (_this._dirtyMatch) {
+        } else if (cmd === 'findagain' && !_this._dirtyMatch) {
+          var updateHighlightAll = !_this._highlightMatches && _this._state.highlightAll;
           _this._nextMatch();
-        } else if (cmd === 'findagain') {
-          _this._nextMatch();
-          if (findbarClosed && _this._state.highlightAll) {
+          if (updateHighlightAll) {
             _this._updateAllPages();
           }
         } else {
@@ -5789,20 +5825,6 @@ var PDFFindController = function () {
       clearTimeout(this._findTimeout);
       this._findTimeout = null;
       this._firstPageCapability = (0, _pdfjsLib.createPromiseCapability)();
-    }
-  }, {
-    key: '_shouldDirtyMatch',
-    value: function _shouldDirtyMatch(cmd) {
-      switch (cmd) {
-        case 'findagain':
-          var pageNumber = this._selected.pageIdx + 1;
-          var linkService = this._linkService;
-          if (pageNumber >= 1 && pageNumber <= linkService.pagesCount && linkService.page !== pageNumber && linkService.isPageVisible && !linkService.isPageVisible(pageNumber)) {
-            break;
-          }
-          return false;
-      }
-      return true;
     }
   }, {
     key: '_prepareMatches',
@@ -7037,11 +7059,6 @@ var PDFLinkService = function () {
       return this._pagesRefCache && this._pagesRefCache[refStr] || null;
     }
   }, {
-    key: 'isPageVisible',
-    value: function isPageVisible(pageNumber) {
-      return this.pdfViewer.isPageVisible(pageNumber);
-    }
-  }, {
     key: 'pagesCount',
     get: function get() {
       return this.pdfDocument ? this.pdfDocument.numPages : 0;
@@ -7149,11 +7166,6 @@ var SimpleLinkService = function () {
   }, {
     key: 'cachePageRef',
     value: function cachePageRef(pageNum, pageRef) {}
-  }, {
-    key: 'isPageVisible',
-    value: function isPageVisible(pageNumber) {
-      return true;
-    }
   }, {
     key: 'pagesCount',
     get: function get() {
@@ -9215,20 +9227,6 @@ var BaseViewer = function () {
       throw new Error('Not implemented: _getVisiblePages');
     }
   }, {
-    key: 'isPageVisible',
-    value: function isPageVisible(pageNumber) {
-      if (!this.pdfDocument) {
-        return false;
-      }
-      if (this.pageNumber < 1 || pageNumber > this.pagesCount) {
-        console.error(this._name + '.isPageVisible: "' + pageNumber + '" is out of bounds.');
-        return false;
-      }
-      return this._getVisiblePages().views.some(function (view) {
-        return view.id === pageNumber;
-      });
-    }
-  }, {
     key: 'cleanup',
     value: function cleanup() {
       for (var i = 0, ii = this._pages.length; i < ii; i++) {
@@ -10688,10 +10686,6 @@ var SecondaryToolbar = function () {
       eventName: 'print',
       close: true
     }, {
-      element: options.downloadButton,
-      eventName: 'download',
-      close: true
-    }, {
       element: options.viewBookmarkButton,
       eventName: null,
       close: true
@@ -11248,9 +11242,6 @@ var Toolbar = function () {
       });
       items.print.addEventListener('click', function () {
         eventBus.dispatch('print', { source: self });
-      });
-      items.download.addEventListener('click', function () {
-        eventBus.dispatch('download', { source: self });
       });
       items.scaleSelect.oncontextmenu = _ui_utils.noContextMenuHandler;
       eventBus.on('localized', function () {
